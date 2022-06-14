@@ -48,6 +48,11 @@ public interface PushRegistryConfig extends MeterRegistryConfig {
     }
 
     /**
+     * @return {@code true} if graceful shutdown is enabled. Default is {@code false}.
+     */
+    default boolean gracefulShutdownEnabled() { return getBoolean(this, "gracefulShutdownEnabled").orElse(false); }
+
+    /**
      * Return the number of threads to use with the scheduler.
      * <p>
      * Note that this configuration is NOT supported.
@@ -105,7 +110,9 @@ public interface PushRegistryConfig extends MeterRegistryConfig {
         return checkAll(config, check("step", PushRegistryConfig::step),
                 check("connectTimeout", PushRegistryConfig::connectTimeout),
                 check("readTimeout", PushRegistryConfig::readTimeout),
-                check("batchSize", PushRegistryConfig::batchSize), check("numThreads", PushRegistryConfig::numThreads));
+                check("batchSize", PushRegistryConfig::batchSize),
+                check("numThreads", PushRegistryConfig::numThreads),
+                check("gracefulShutdownEnabled", PushRegistryConfig::gracefulShutdownEnabled));
     }
 
 }
