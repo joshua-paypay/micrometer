@@ -83,18 +83,32 @@ public abstract class PushMeterRegistry extends MeterRegistry {
         }
     }
 
+    private void publishOnNextScheduledTime() {
+        long stepMillis = config.step().toMillis();
+        long millisUntilNextPublish = stepMillis - (clock.wallTime() % stepMillis) + 1;
+        try {
+            logger.info("Wait for {} ms until the next metric publish.", millisUntilNextPublish);
+            Thread.sleep(millisUntilNextPublish);
+        }
+        catch (InterruptedException e) {
+            logger.info("Interrupted while waiting the next publish. Not publishing metrics");
+            return;
+        }
+        publishSafely();
+    }
+
     public void stop() {
         if (scheduledExecutorService != null) {
             scheduledExecutorService.shutdown();
+            if (config.gracefulShutdownEnabled()) {
+                publishOnNextScheduledTime();
+            }
             scheduledExecutorService = null;
         }
     }
 
     @Override
     public void close() {
-        if (config.enabled()) {
-            publishSafely();
-        }
         stop();
         super.close();
     }
