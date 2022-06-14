@@ -85,13 +85,12 @@ public abstract class PushMeterRegistry extends MeterRegistry {
 
     private void publishOnNextScheduledTime() {
         long stepMillis = config.step().toMillis();
-        logger.debug("time: {}, step: {}", clock.wallTime(), stepMillis);
         long millisUntilNextPublish = stepMillis - (clock.wallTime() % stepMillis) + 1;
         try {
-            logger.debug("Wait {} ms until the next metric publishment.", millisUntilNextPublish);
+            logger.info("Wait for {} ms until the next metric publishment.", millisUntilNextPublish);
             Thread.sleep(millisUntilNextPublish);
         } catch (InterruptedException e) {
-            logger.debug("Interrupted while waiting the next publishment. Not publishing metrics");
+            logger.info("Interrupted while waiting the next publishment. Not publishing metrics");
             return ;
         }
         publishSafely();
